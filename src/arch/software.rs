@@ -113,12 +113,6 @@ fn update_u32(state: u32, data: &[u8], params: crc::Crc<u32, Table<16>>) -> u32 
 
     let checksum = digest.finalize();
 
-    println!(
-        "finalized checksum  {:#16x}, xor'd {:#16x}",
-        checksum,
-        checksum ^ params.algorithm.xorout
-    );
-
     // remove XOR since this will be applied in the library Digest::finalize() step instead
     checksum ^ params.algorithm.xorout
 }

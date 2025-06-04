@@ -314,7 +314,6 @@ impl X86Ops {
     /// Fallback for `_mm_shuffle_epi8(a, mask)`.
     #[inline]
     unsafe fn shuffle_bytes_fallback(data: __m128i, mask: __m128i) -> __m128i {
-        println!("shuffle_bytes_fallback");
         let bytes_a: [u8; 16] = core::mem::transmute(data);
         let bytes_m: [u8; 16] = core::mem::transmute(mask);
 
