@@ -168,7 +168,7 @@ impl ArchOps for X86Ops {
     }
 
     #[inline]
-    #[target_feature(enable = "sse2,sse4.1")]
+    #[target_feature(enable = "sse2")]
     unsafe fn and_vectors(&self, a: Self::Vector, b: Self::Vector) -> Self::Vector {
         _mm_and_si128(a, b)
     }
