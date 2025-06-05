@@ -20,7 +20,7 @@ use crate::traits::ArchOps;
 
 macro_rules! make_shift {
     ($name:ident, $intrinsic:ident, $imm:expr) => {
-        #[inline]
+        #[inline(never)]
         #[target_feature(enable = "sse2")]
         unsafe fn $name(&self, v: __m128i) -> __m128i {
             $intrinsic(v, $imm)
@@ -34,7 +34,7 @@ pub struct X86Ops;
 impl ArchOps for X86Ops {
     type Vector = __m128i;
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn create_vector_from_u64_pair(
         &self,
@@ -50,7 +50,7 @@ impl ArchOps for X86Ops {
         }
     }
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn create_vector_from_u64_pair_non_reflected(
         &self,
@@ -61,14 +61,14 @@ impl ArchOps for X86Ops {
         Self::set_epi64x(high, low)
     }
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn create_vector_from_u64(&self, value: u64, high: bool) -> Self::Vector {
         // x86 uses custom helper
         Self::create_u64_vector(value, high)
     }
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn extract_u64s(&self, vector: Self::Vector) -> [u64; 2] {
         [
@@ -77,34 +77,34 @@ impl ArchOps for X86Ops {
         ]
     }
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn extract_poly64s(&self, vector: Self::Vector) -> [u64; 2] {
         // On x86, poly64s and u64s extraction is the same
         self.extract_u64s(vector)
     }
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn xor_vectors(&self, a: Self::Vector, b: Self::Vector) -> Self::Vector {
         _mm_xor_si128(a, b)
     }
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn load_bytes(&self, ptr: *const u8) -> Self::Vector {
         // x86 requires cast to __m128i*
         _mm_loadu_si128(ptr as *const __m128i)
     }
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn load_aligned(&self, ptr: *const [u64; 2]) -> Self::Vector {
         // x86 requires cast to __m128i*
         _mm_loadu_si128(ptr as *const __m128i)
     }
 
-    #[inline]
+    #[inline(never)]
     unsafe fn shuffle_bytes(&self, data: Self::Vector, mask: Self::Vector) -> Self::Vector {
         // x86 uses specific SSSE3 instruction
         if is_x86_feature_detected!("ssse3") {
@@ -114,7 +114,7 @@ impl ArchOps for X86Ops {
         }
     }
 
-    #[inline]
+    #[inline(never)]
     unsafe fn blend_vectors(
         &self,
         a: Self::Vector,
@@ -144,7 +144,7 @@ impl ArchOps for X86Ops {
     make_shift!(shift_right_12, _mm_srli_si128, 12);
     make_shift!(shift_right_32, _mm_srli_si128, 4); // 4-byte == 32‑bit
 
-    #[inline]
+    #[inline(never)]
     unsafe fn create_vector_from_u32(&self, value: u32, high: bool) -> Self::Vector {
         if is_x86_feature_detected!("sse4.1") {
             Self::create_vector_from_u32_sse41(value, high)
@@ -155,25 +155,25 @@ impl ArchOps for X86Ops {
         }
     }
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn set_all_bytes(&self, value: u8) -> Self::Vector {
         _mm_set1_epi8(value as i8)
     }
 
-    #[inline(always)]
+    #[inline(never)]
     unsafe fn create_compare_mask(&self, vector: Self::Vector) -> Self::Vector {
         // On x86, MSB is already used for blending, so we just return the vector
         vector
     }
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn and_vectors(&self, a: Self::Vector, b: Self::Vector) -> Self::Vector {
         _mm_and_si128(a, b)
     }
 
-    #[inline]
+    #[inline(never)]
     unsafe fn carryless_mul_00(&self, a: Self::Vector, b: Self::Vector) -> Self::Vector {
         if is_x86_feature_detected!("pclmulqdq") {
             Self::carryless_mul_00_hw(a, b)
@@ -183,7 +183,7 @@ impl ArchOps for X86Ops {
             Self::carryless_mul_fallback(a, b, 0x00)
         }
     }
-    #[inline]
+    #[inline(never)]
     unsafe fn carryless_mul_01(&self, a: Self::Vector, b: Self::Vector) -> Self::Vector {
         if is_x86_feature_detected!("pclmulqdq") {
             Self::carryless_mul_01_hw(a, b)
@@ -193,7 +193,7 @@ impl ArchOps for X86Ops {
             Self::carryless_mul_fallback(a, b, 0x01)
         }
     }
-    #[inline]
+    #[inline(never)]
     unsafe fn carryless_mul_10(&self, a: Self::Vector, b: Self::Vector) -> Self::Vector {
         if is_x86_feature_detected!("pclmulqdq") {
             Self::carryless_mul_10_hw(a, b)
@@ -203,7 +203,7 @@ impl ArchOps for X86Ops {
             Self::carryless_mul_fallback(a, b, 0x10)
         }
     }
-    #[inline]
+    #[inline(never)]
     unsafe fn carryless_mul_11(&self, a: Self::Vector, b: Self::Vector) -> Self::Vector {
         if is_x86_feature_detected!("pclmulqdq") {
             Self::carryless_mul_11_hw(a, b)
@@ -217,7 +217,7 @@ impl ArchOps for X86Ops {
 
 impl X86Ops {
     // Helper methods specific to x86/x86_64
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn set_epi64x(high: u64, low: u64) -> __m128i {
         #[cfg(target_arch = "x86_64")]
@@ -235,7 +235,7 @@ impl X86Ops {
         }
     }
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn create_u64_vector(value: u64, high: bool) -> __m128i {
         if high {
@@ -245,7 +245,7 @@ impl X86Ops {
         }
     }
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn extract_u64_low(v: __m128i) -> u64 {
         #[cfg(target_arch = "x86_64")]
@@ -260,7 +260,7 @@ impl X86Ops {
         }
     }
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn extract_u64_high(v: __m128i) -> u64 {
         #[cfg(target_arch = "x86_64")]
@@ -284,7 +284,7 @@ impl X86Ops {
         }
     }
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn create_vector_from_u32_sse2(value: u32, high: bool) -> __m128i {
         let v = _mm_cvtsi32_si128(value as i32);
@@ -295,7 +295,7 @@ impl X86Ops {
         }
     }
 
-    #[inline]
+    #[inline(never)]
     unsafe fn create_vector_from_u32_fallback(value: u32, high: bool) -> __m128i {
         let mut lanes = [0u32; 4];
         if high {
@@ -312,7 +312,7 @@ impl X86Ops {
     }
 
     /// Fallback for `_mm_shuffle_epi8(a, mask)`.
-    #[inline]
+    #[inline(never)]
     unsafe fn shuffle_bytes_fallback(data: __m128i, mask: __m128i) -> __m128i {
         let bytes_a: [u8; 16] = core::mem::transmute(data);
         let bytes_m: [u8; 16] = core::mem::transmute(mask);
@@ -346,7 +346,7 @@ impl X86Ops {
     }
 
     /// Implementation of _mm_clmulepi64_si128 without intrinsics
-    #[inline]
+    #[inline(never)]
     unsafe fn carryless_mul_fallback(a: __m128i, b: __m128i, imm: u8) -> __m128i {
         // Extract the __m128i values as arrays of u64
         let a_parts: [u64; 2] = std::mem::transmute(a);
@@ -369,7 +369,7 @@ impl X86Ops {
     }
 
     /// Performs carryless multiplication of two 128-bit values
-    #[inline]
+    #[inline(never)]
     fn carryless_multiply_64(mut a: u128, mut b: u128) -> u128 {
         let mut res: u128 = 0;
         while b != 0 {
@@ -382,7 +382,7 @@ impl X86Ops {
         res
     }
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn carryless_mul_sse2(a: __m128i, b: __m128i, imm: u8) -> __m128i {
         let a_sel = if (imm & 0x01) != 0 {
@@ -435,7 +435,7 @@ impl X86Ops {
         _mm_blendv_epi8(a, b, mask)
     }
 
-    #[inline]
+    #[inline(never)]
     unsafe fn blend_vectors_fallback(a: __m128i, b: __m128i, mask: __m128i) -> __m128i {
         let bytes_a: [u8; 16] = core::mem::transmute(a);
         let bytes_b: [u8; 16] = core::mem::transmute(b);
@@ -453,7 +453,7 @@ impl X86Ops {
         core::mem::transmute(out)
     }
 
-    #[inline]
+    #[inline(never)]
     #[target_feature(enable = "sse2")]
     unsafe fn blend_vectors_sse2(a: __m128i, b: __m128i, mask: __m128i) -> __m128i {
         let zero = _mm_setzero_si128();
